@@ -20,6 +20,7 @@ body {
     grid-area: output;
     padding: 10px;
     overflow-y: auto;
+    align-self: end;
 }
 
 .tmp-output {
