@@ -1,0 +1,16 @@
+{
+  "name": "g1",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Sergey Pestov <pestov-sa@yandex.ru>",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "prebuild": "rm -rf dist",
+    "watch": "parcel watch ./public/index.html --public-url ./"
+  },
+  "devDependencies": {
+    "cssnano": "^4.1.10",
+    "victor": "^1.1.0"
+  }
+}
