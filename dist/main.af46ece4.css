@@ -21,17 +21,22 @@ body {
     padding: 10px;
     overflow-y: auto;
     align-self: end;
+    text-align: center;
 }
 
 .tmp-output {
     grid-area: tmp-output;
     padding: 10px;
+    text-align: center;
+    background-color: #ccc;
+    font-style: italic;
 }
 
 .input {
     grid-area: input;
     padding: 10px;
     padding-bottom: 50px;
+    text-align: center;
 }
 
 .text-button:hover {

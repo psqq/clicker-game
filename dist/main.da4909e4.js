@@ -232,6 +232,36 @@ var tmpOutput = new GameOutput('.tmp-output');
 exports.tmpOutput = tmpOutput;
 var input = new GameInput('.input');
 exports.input = input;
+},{}],"../src/tools.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.doWith = doWith;
+exports.make = make;
+
+/**
+ * @param {T} obj
+ * @param {(obj: T) => any} cb
+ * @returns {T}
+ * @template T
+ */
+function doWith(obj, cb) {
+  cb(obj);
+  return obj;
+}
+/**
+ * @param {new (...arg: any) => T} Class
+ * @param {(obj: T) => any} cb
+ * @template T
+ */
+
+
+function make(Class, cb) {
+  var obj = new Class();
+  return doWith(obj, cb);
+}
 },{}],"../src/world.js":[function(require,module,exports) {
 "use strict";
 
@@ -239,27 +269,87 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.getPlayerLocation = getPlayerLocation;
-exports.getNearLocation = getNearLocation;
+exports.getNearLocations = getNearLocations;
 exports.getLocationName = getLocationName;
 exports.movePlayerTo = movePlayerTo;
-var playerLocation = "Дом";
+
+var _tools = require("./tools");
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Location = function Location() {
+  _classCallCheck(this, Location);
+
+  this.name = "location";
+  /** @type {Set<Location>} */
+
+  this.nearLocations = new Set();
+};
+
+var Entity = function Entity() {
+  _classCallCheck(this, Entity);
+
+  /** @type {Location} */
+  this.location = null;
+};
+/**
+ * @param {Location} loc1 
+ * @param {Location} loc2 
+ */
+
+
+function addWay(loc1, loc2) {
+  loc1.nearLocations.add(loc2);
+  loc2.nearLocations.add(loc1);
+}
+
+var homeLocation = (0, _tools.make)(Location, function (loc) {
+  loc.name = "Дом";
+});
+var streetLocation = (0, _tools.make)(Location, function (loc) {
+  loc.name = "Улица";
+});
+addWay(homeLocation, streetLocation);
+var player = (0, _tools.make)(Entity, function (e) {
+  e.location = homeLocation;
+});
 
 function getPlayerLocation() {
-  return playerLocation;
+  return player.location;
 }
+/**
+ * @param {Location} loc
+ */
 
-function getNearLocation(loc) {
-  return ["Улица", "Двор"];
+
+function getNearLocations(loc) {
+  return _toConsumableArray(loc.nearLocations);
 }
+/**
+ * @param {Location} loc
+ */
+
 
 function getLocationName(loc) {
-  return loc;
+  return loc.name;
 }
+/**
+ * @param {Location} loc
+ */
+
 
 function movePlayerTo(loc) {
-  playerLocation = loc;
+  player.location = loc;
 }
-},{}],"../src/main.js":[function(require,module,exports) {
+},{"./tools":"../src/tools.js"}],"../src/main.js":[function(require,module,exports) {
 "use strict";
 
 var ui = _interopRequireWildcard(require("./ui"));
@@ -272,47 +362,54 @@ function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj;
 
 ui.output.printTag('p', 'Добро пожаловать в игру!');
 
+function nearLocationsButtons() {
+  ui.input.clear();
+  ui.tmpOutput.clear();
+  ui.tmpOutput.printTag('p', "\u041A\u0443\u0434\u0430?");
+  var _iteratorNormalCompletion = true;
+  var _didIteratorError = false;
+  var _iteratorError = undefined;
+
+  try {
+    var _loop = function _loop() {
+      var loc = _step.value;
+      ui.input.addButton(w.getLocationName(loc), function () {
+        w.movePlayerTo(loc);
+        var locName = w.getLocationName(loc);
+        ui.output.printTag('p', "\u0412\u044B \u043F\u0435\u0440\u0435\u0448\u043B\u0438 \u0432 \u043B\u043E\u043A\u0430\u0446\u0438\u044E: ".concat(locName));
+        mainButtons();
+      });
+    };
+
+    for (var _iterator = w.getNearLocations(w.getPlayerLocation())[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+      _loop();
+    }
+  } catch (err) {
+    _didIteratorError = true;
+    _iteratorError = err;
+  } finally {
+    try {
+      if (!_iteratorNormalCompletion && _iterator.return != null) {
+        _iterator.return();
+      }
+    } finally {
+      if (_didIteratorError) {
+        throw _iteratorError;
+      }
+    }
+  }
+}
+
 function mainButtons() {
   ui.input.clear();
+  ui.tmpOutput.clear();
   ui.input.addButton('Где я?', function () {
     var loc = w.getPlayerLocation();
     var locName = w.getLocationName(loc);
     ui.output.printTag('p', "\u0422\u0435\u043A\u0443\u0449\u0430\u044F \u043B\u043E\u043A\u0430\u0446\u0438\u044F: ".concat(locName));
   });
   ui.input.addButton('Идти', function () {
-    ui.input.clear();
-    var _iteratorNormalCompletion = true;
-    var _didIteratorError = false;
-    var _iteratorError = undefined;
-
-    try {
-      var _loop = function _loop() {
-        var loc = _step.value;
-        ui.input.addButton(w.getLocationName(loc), function () {
-          w.movePlayerTo(loc);
-          var locName = w.getLocationName(loc);
-          ui.output.printTag('p', "\u0412\u044B \u043F\u0435\u0440\u0435\u0448\u043B\u0438 \u0432 \u043B\u043E\u043A\u0430\u0446\u0438\u044E: ".concat(locName));
-          mainButtons();
-        });
-      };
-
-      for (var _iterator = w.getNearLocation(w.getPlayerLocation())[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-        _loop();
-      }
-    } catch (err) {
-      _didIteratorError = true;
-      _iteratorError = err;
-    } finally {
-      try {
-        if (!_iteratorNormalCompletion && _iterator.return != null) {
-          _iterator.return();
-        }
-      } finally {
-        if (_didIteratorError) {
-          throw _iteratorError;
-        }
-      }
-    }
+    nearLocationsButtons();
   });
 }
 
@@ -345,7 +442,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55007" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "5001" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
