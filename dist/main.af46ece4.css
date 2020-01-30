@@ -42,6 +42,7 @@ body {
 .text-button {
     background-color: #ddd;
     padding: 3px;
+    margin-left: 10px;
 }
 
 .no-selection {

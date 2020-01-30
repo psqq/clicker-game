@@ -232,20 +232,92 @@ var tmpOutput = new GameOutput('.tmp-output');
 exports.tmpOutput = tmpOutput;
 var input = new GameInput('.input');
 exports.input = input;
+},{}],"../src/world.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getPlayerLocation = getPlayerLocation;
+exports.getNearLocation = getNearLocation;
+exports.getLocationName = getLocationName;
+exports.movePlayerTo = movePlayerTo;
+var playerLocation = "Дом";
+
+function getPlayerLocation() {
+  return playerLocation;
+}
+
+function getNearLocation(loc) {
+  return ["Улица", "Двор"];
+}
+
+function getLocationName(loc) {
+  return loc;
+}
+
+function movePlayerTo(loc) {
+  playerLocation = loc;
+}
 },{}],"../src/main.js":[function(require,module,exports) {
 "use strict";
 
 var ui = _interopRequireWildcard(require("./ui"));
+
+var w = _interopRequireWildcard(require("./world"));
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 ui.output.printTag('p', 'Добро пожаловать в игру!');
-ui.input.addButton('Выйграть!', function () {
-  ui.output.printTag('p', 'Вы выйграли!');
-});
-},{"./ui":"../src/ui.js"}],"../../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+function mainButtons() {
+  ui.input.clear();
+  ui.input.addButton('Где я?', function () {
+    var loc = w.getPlayerLocation();
+    var locName = w.getLocationName(loc);
+    ui.output.printTag('p', "\u0422\u0435\u043A\u0443\u0449\u0430\u044F \u043B\u043E\u043A\u0430\u0446\u0438\u044F: ".concat(locName));
+  });
+  ui.input.addButton('Идти', function () {
+    ui.input.clear();
+    var _iteratorNormalCompletion = true;
+    var _didIteratorError = false;
+    var _iteratorError = undefined;
+
+    try {
+      var _loop = function _loop() {
+        var loc = _step.value;
+        ui.input.addButton(w.getLocationName(loc), function () {
+          w.movePlayerTo(loc);
+          var locName = w.getLocationName(loc);
+          ui.output.printTag('p', "\u0412\u044B \u043F\u0435\u0440\u0435\u0448\u043B\u0438 \u0432 \u043B\u043E\u043A\u0430\u0446\u0438\u044E: ".concat(locName));
+          mainButtons();
+        });
+      };
+
+      for (var _iterator = w.getNearLocation(w.getPlayerLocation())[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+        _loop();
+      }
+    } catch (err) {
+      _didIteratorError = true;
+      _iteratorError = err;
+    } finally {
+      try {
+        if (!_iteratorNormalCompletion && _iterator.return != null) {
+          _iterator.return();
+        }
+      } finally {
+        if (_didIteratorError) {
+          throw _iteratorError;
+        }
+      }
+    }
+  });
+}
+
+mainButtons();
+},{"./ui":"../src/ui.js","./world":"../src/world.js"}],"../../../../AppData/Local/Yarn/Data/global/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -273,7 +345,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "48299" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55007" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
