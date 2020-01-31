@@ -1,33 +1,40 @@
 import * as ui from './ui';
-import * as w from './world';
+
+let a, b, answer;
+
+function newTask() {
+    a = 5 + Math.floor(Math.random() * 5);
+    b = a + Math.floor(Math.random() * 5);
+    answer = a + b;
+}
+
 
 ui.output.printTag('p', 'Добро пожаловать в игру!');
 
-function nearLocationsButtons() {
+function mainButtons() {
     ui.input.clear();
-    ui.tmpOutput.clear();
-    ui.tmpOutput.printTag('p', `Куда?`);
-    for(let loc of w.getNearLocations(w.getPlayerLocation())) {
-        ui.input.addButton(w.getLocationName(loc), () => {
-            w.movePlayerTo(loc);
-            const locName = w.getLocationName(loc);
-            ui.output.printTag('p', `Вы перешли в локацию: ${locName}`);
+    newTask();
+    ui.output.printTag('p', `Сколько будет ${a} + ${b}?`);
+    let s = new Set();
+    s.add(answer);
+    while (s.size < 4) {
+        s.add(5 + Math.floor(Math.random() * 15));
+    }
+    let arr = [...s];
+    arr.sort(() => Math.random() - 0.5);
+    for (let x of arr) {
+        ui.input.addButton(x, () => {
+            ui.output.printTag('p', `Ваш ответ: ${x}.`);
+            if (x == answer) {
+                ui.output.printTag('p', 'Верно!');
+            }
+            if (x != answer) {
+                ui.output.printTag('p', 'Не верно!');
+            }
+            newTask();
             mainButtons();
         });
     }
-}
-
-function mainButtons() {
-    ui.input.clear();
-    ui.tmpOutput.clear();
-    ui.input.addButton('Где я?', () => {
-        const loc = w.getPlayerLocation();
-        const locName = w.getLocationName(loc);
-        ui.output.printTag('p', `Текущая локация: ${locName}`);
-    });
-    ui.input.addButton('Идти', () => {
-        nearLocationsButtons();
-    });
 }
 
 mainButtons();
